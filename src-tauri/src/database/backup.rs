@@ -13,7 +13,7 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use tempfile::NamedTempFile;
 
-const CC_SWITCH_SQL_EXPORT_HEADER: &str = "-- CC Switch SQLite 导出";
+const CC_INYX_SQL_EXPORT_HEADER: &str = "-- Inyx SQLite 导出";
 
 /// A database backup entry for the UI
 #[derive(Debug, serde::Serialize)]
@@ -59,7 +59,7 @@ impl Database {
     /// 从 SQL 字符串导入，返回生成的备份 ID（若无备份则为空字符串）
     pub fn import_sql_string(&self, sql_raw: &str) -> Result<String, AppError> {
         let sql_content = sql_raw.trim_start_matches('\u{feff}');
-        Self::validate_cc_switch_sql_export(sql_content)?;
+        Self::validate_cc_inyx_sql_export(sql_content)?;
 
         // 导入前备份现有数据库
         let backup_path = self.backup_database_file()?;
@@ -116,16 +116,16 @@ impl Database {
         Ok(snapshot)
     }
 
-    fn validate_cc_switch_sql_export(sql: &str) -> Result<(), AppError> {
+    fn validate_cc_inyx_sql_export(sql: &str) -> Result<(), AppError> {
         let trimmed = sql.trim_start();
-        if trimmed.starts_with(CC_SWITCH_SQL_EXPORT_HEADER) {
+        if trimmed.starts_with(CC_INYX_SQL_EXPORT_HEADER) {
             return Ok(());
         }
 
         Err(AppError::localized(
             "backup.sql.invalid_format",
-            "仅支持导入由 CC Switch 导出的 SQL 备份文件。",
-            "Only SQL backups exported by CC Switch are supported.",
+            "仅支持导入由 Inyx 导出的 SQL 备份文件。",
+            "Only SQL backups exported by Inyx are supported.",
         ))
     }
 
@@ -170,7 +170,7 @@ impl Database {
 
     /// 生成一致性快照备份，返回备份文件路径（不存在主库时返回 None）
     pub(crate) fn backup_database_file(&self) -> Result<Option<PathBuf>, AppError> {
-        let db_path = get_app_config_dir().join("cc-switch.db");
+        let db_path = get_app_config_dir().join("cc-inyx.db");
         if !db_path.exists() {
             return Ok(None);
         }
@@ -266,7 +266,7 @@ impl Database {
             .unwrap_or(0);
 
         output.push_str(&format!(
-            "-- CC Switch SQLite 导出\n-- 生成时间: {timestamp}\n-- user_version: {user_version}\n"
+            "-- Inyx SQLite 导出\n-- 生成时间: {timestamp}\n-- user_version: {user_version}\n"
         ));
         output.push_str("PRAGMA foreign_keys=OFF;\n");
         output.push_str(&format!("PRAGMA user_version={user_version};\n"));

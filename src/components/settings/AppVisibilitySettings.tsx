@@ -31,10 +31,10 @@ export function AppVisibilitySettings({
 
   const visibleApps: VisibleApps = settings.visibleApps ?? {
     claude: true,
-    codex: true,
-    gemini: true,
-    opencode: true,
-    openclaw: true,
+    codex: false,
+    gemini: false,
+    opencode: false,
+    openclaw: false,
   };
 
   // Count how many apps are currently visible

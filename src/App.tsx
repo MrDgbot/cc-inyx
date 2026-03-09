@@ -47,7 +47,6 @@ import { AddProviderDialog } from "@/components/providers/AddProviderDialog";
 import { EditProviderDialog } from "@/components/providers/EditProviderDialog";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { SettingsPage } from "@/components/settings/SettingsPage";
-import { UpdateBadge } from "@/components/UpdateBadge";
 import { EnvWarningBanner } from "@/components/env/EnvWarningBanner";
 import { ProxyToggle } from "@/components/proxy/ProxyToggle";
 import { FailoverToggle } from "@/components/proxy/FailoverToggle";
@@ -96,7 +95,7 @@ const DRAG_BAR_HEIGHT = isWindows() || isLinux() ? 0 : 28; // px
 const HEADER_HEIGHT = 64; // px
 const CONTENT_TOP_OFFSET = DRAG_BAR_HEIGHT + HEADER_HEIGHT;
 
-const STORAGE_KEY = "cc-switch-last-app";
+const STORAGE_KEY = "cc-inyx-last-app";
 const VALID_APPS: AppId[] = [
   "claude",
   "codex",
@@ -113,7 +112,7 @@ const getInitialApp = (): AppId => {
   return "claude";
 };
 
-const VIEW_STORAGE_KEY = "cc-switch-last-view";
+const VIEW_STORAGE_KEY = "cc-inyx-last-view";
 const VALID_VIEWS: View[] = [
   "providers",
   "settings",
@@ -154,10 +153,10 @@ function App() {
   const { data: settingsData } = useSettingsQuery();
   const visibleApps: VisibleApps = settingsData?.visibleApps ?? {
     claude: true,
-    codex: true,
-    gemini: true,
-    opencode: true,
-    openclaw: true,
+    codex: false,
+    gemini: false,
+    opencode: false,
+    openclaw: false,
   };
 
   const getFirstVisibleApp = (): AppId => {
@@ -912,19 +911,16 @@ function App() {
             ) : (
               <div className="flex items-center gap-2">
                 <div className="relative inline-flex items-center">
-                  <a
-                    href="https://github.com/farion1231/cc-switch"
-                    target="_blank"
-                    rel="noreferrer"
+                  <span
                     className={cn(
-                      "text-xl font-semibold transition-colors",
+                      "text-xl font-semibold",
                       isProxyRunning && isCurrentAppTakeoverActive
-                        ? "text-emerald-500 hover:text-emerald-600 dark:text-emerald-400 dark:hover:text-emerald-300"
-                        : "text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300",
+                        ? "text-emerald-500 dark:text-emerald-400"
+                        : "text-blue-500 dark:text-blue-400",
                     )}
                   >
-                    CC Switch
-                  </a>
+                    Inyx
+                  </span>
                 </div>
                 <Button
                   variant="ghost"
@@ -938,12 +934,6 @@ function App() {
                 >
                   <Settings className="w-4 h-4" />
                 </Button>
-                <UpdateBadge
-                  onClick={() => {
-                    setSettingsDefaultTab("about");
-                    setCurrentView("settings");
-                  }}
-                />
                 {isCurrentAppTakeoverActive && (
                   <Button
                     variant="ghost"
@@ -1086,12 +1076,14 @@ function App() {
                 )}
                 {currentView === "providers" && (
                   <>
-                    <AppSwitcher
-                      activeApp={activeApp}
-                      onSwitch={setActiveApp}
-                      visibleApps={visibleApps}
-                      compact={isToolbarCompact}
-                    />
+                    {Object.values(visibleApps).filter(Boolean).length > 1 && (
+                      <AppSwitcher
+                        activeApp={activeApp}
+                        onSwitch={setActiveApp}
+                        visibleApps={visibleApps}
+                        compact={isToolbarCompact}
+                      />
+                    )}
 
                     <div className="flex items-center gap-1 p-1 bg-muted rounded-xl">
                       <AnimatePresence mode="wait">

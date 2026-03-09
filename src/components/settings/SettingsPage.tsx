@@ -216,10 +216,7 @@ export function SettingsPage({
                       onChange={(lang) => handleAutoSave({ language: lang })}
                     />
                     <ThemeSettings />
-                    <AppVisibilitySettings
-                      settings={settings}
-                      onChange={handleAutoSave}
-                    />
+                    {/* AppVisibilitySettings hidden: only Claude mode */}
                     <WindowSettings
                       settings={settings}
                       onChange={handleAutoSave}
